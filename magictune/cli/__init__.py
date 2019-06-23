@@ -1,9 +1,20 @@
 import argparse
 import sys
 import logging
+import configparser
+
+from magictune.session import Session
 
 def main():
     print("Hello!")
+
+    # Read secret.key
+    config = configparser.ConfigParser()
+    config.read('secret.key')
+    key = config['Kraken']['key']
+    secret = config['Kraken']['secret']
+
+    s = Session(key, secret)
 
 
 # def main():
