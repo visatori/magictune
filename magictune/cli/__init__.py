@@ -5,16 +5,16 @@ import configparser
 
 from magictune.session import Session
 
+
 def main():
     print("Hello!")
 
-    # Read secret.key
+    # Read config
     config = configparser.ConfigParser()
-    config.read('secret.key')
-    key = config['Kraken']['key']
-    secret = config['Kraken']['secret']
+    config.read("config.conf")
+    kraken = {"key": config["Kraken"]["key"], "secret": config["Kraken"]["secret"]}
 
-    s = Session(key, secret)
+    s = Session(kraken["key"], kraken["secret"])
 
 
 # def main():
