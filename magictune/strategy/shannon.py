@@ -7,5 +7,5 @@ class Shannon:
         pass        
 
 
-    def balanced():
+    def balanced(self):
         pass
