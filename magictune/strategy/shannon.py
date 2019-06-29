@@ -4,6 +4,10 @@ class Shannon:
     """
 
     def __init__(self, tokens, balances):
+        assert (len(tokens) == len(balances))
+        
+        # target = sum() 
+
         pass        
 
 

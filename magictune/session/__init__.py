@@ -1,6 +1,5 @@
 import krakenex
 
-
 class Session:
     """
         Session returns a kraken instance.
@@ -8,7 +7,10 @@ class Session:
 
     kraken = None
 
+    logger = None
+
     def __init__(self, key="", secret=""):
+        # Kraken session
         self.kraken = krakenex.API(key, secret)
 
     def balance(self):

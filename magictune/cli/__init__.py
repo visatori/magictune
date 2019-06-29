@@ -20,15 +20,14 @@ def main():
     args = parser.parse_args()
 
     # Read config
-    config = configparser.ConfigParser()
-    config.read("config.conf")
+    config = None
+    with open('config.json') as f:
+        config = json.load(f)
+    assert(config is not None, "No config file was found")
 
     # Create Kraken session
-    kraken = {"key": config["Kraken"]["key"], "secret": config["Kraken"]["secret"]}
+    kraken = {"key": config["kraken"]["key"], "secret": config["kraken"]["secret"]}
     kraken_session = Session(kraken["key"], kraken["secret"])
-
-    # Tokens
-    tokens = str(config["Trading"]["tokens"]).split(",")
 
     if args.runMode == 'run':
         exec_run(config, kraken_session)
@@ -53,8 +52,35 @@ def exec_run(config, k, dry_run = False):
     """
         Rebalance the portfolio.
     """
-    if config["Trading"]["strategy"] == 'shannon':
-        balance = Shannon([], [])
+
+    # Coins
+    coins = config["coins"]
+
+    # Balances
+    b = k.balance()
+    balances = []
+    for c in coins:
+        balances.append(float(b['result'][c['symbol']]))
+
+    # HACK: Fake balances to have non zero values
+    balances = [1, 2.5]
+
+    # Values
+    values = []
+    for i in range(0, len(coins)):
+        c = coins[i]
+        b = balances[i]
+
+        ticker = k.ticker(c['pair'])
+        # Use last trade because it's the best average and highly unlikely to get burnt
+        values.append(float(ticker['result'][c['pair']]['c'][0]) * b)
+
+    print(coins)
+    print(balances)
+    print(values)
+
+    # if config["coins"]["strategy"] == 'shannon':
+    #     new_balances = Shannon([], [])
 
     # If dry_run is True do not actually balance, just pretend to do it.
 
