@@ -20,5 +20,6 @@
         "name": "Euro",
         "symbol": "ZEUR"
     },
-    "strategy": "shannon"
+    "strategy": "shannon",
+    "threshold_percentage": 0.01
 }

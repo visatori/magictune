@@ -7,8 +7,8 @@ class Shannon:
     values = None
 
     def __init__(self, balances, values):
-        assert (len(balances) == len(values))
-        
+        assert len(balances) == len(values)
+
         self.balances = balances
         self.values = values
 
@@ -23,5 +23,3 @@ class Shannon:
             new_balances.append(average * self.balances[i] / self.values[i])
 
         return new_balances
-
-
