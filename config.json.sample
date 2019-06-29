@@ -1,0 +1,24 @@
+{
+    "kraken": {
+        "key": "KRAKEN-KEY",
+        "secret": "KRAKEN-SECRET"
+    },
+    "coins": [
+        {
+            "name": "Ethereum",
+            "symbol": "XETH",
+            "pair": "XETHZEUR"
+
+        },
+        {
+            "name": "Litecoin",
+            "symbol": "XLTC",
+            "pair": "XLTCZEUR"
+        }
+    ],
+    "absolute_asset": {
+        "name": "Euro",
+        "symbol": "ZEUR"
+    },
+    "strategy": "shannon"
+}
