@@ -26,3 +26,17 @@ class Session:
 
     def assetPairs(self, info, pair):
         return self.kraken.query_public("AssetPairs", data={"info": info, "pair": pair})
+
+    def trade_market(self, pair, buy_sell, volume):
+        # return self.kraken.query_private("AddOrder", data={
+        #     "pair": pair,
+        #     "type": buy_sell,
+        #     "ordertype": "market",
+        #     "volume": volume
+        # })
+        return {
+            "pair": pair,
+            "type": buy_sell,
+            "ordertype": "market",
+            "volume": volume
+        }

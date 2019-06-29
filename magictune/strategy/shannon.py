@@ -3,13 +3,25 @@ class Shannon:
         Implement Shannon's Demon that keeps an equal balance between all tokens
     """
 
-    def __init__(self, tokens, balances):
-        assert (len(tokens) == len(balances))
+    balances = None
+    values = None
+
+    def __init__(self, balances, values):
+        assert (len(balances) == len(values))
         
-        # target = sum() 
+        self.balances = balances
+        self.values = values
 
-        pass        
+    def rebalance(self):
+        """
+            Rebalance all coins to reach the same value.
+        """
+        average = sum(self.values) / len(self.values)
+
+        new_balances = []
+        for i in range(0, len(self.balances)):
+            new_balances.append(average * self.balances[i] / self.values[i])
+
+        return new_balances
 
 
-    def balanced(self):
-        pass

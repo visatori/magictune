@@ -57,32 +57,66 @@ def exec_run(config, k, dry_run = False):
     coins = config["coins"]
 
     # Balances
-    b = k.balance()
-    balances = []
-    for c in coins:
-        balances.append(float(b['result'][c['symbol']]))
-
-    # HACK: Fake balances to have non zero values
-    balances = [1, 2.5]
+    current_balance = k.balance()
+    # balances = []
+    # for c in coins:
+    #     balances.append(float(current_balance['result'][c['symbol']]))
 
     # Values
-    values = []
-    for i in range(0, len(coins)):
-        c = coins[i]
-        b = balances[i]
+    # values = []
+    # for i in range(0, len(coins)):
+    #     c = coins[i]
+    #     b = balances[i]
 
-        ticker = k.ticker(c['pair'])
-        # Use last trade because it's the best average and highly unlikely to get burnt
-        values.append(float(ticker['result'][c['pair']]['c'][0]) * b)
+    #     ticker = k.ticker(c['pair'])
+    #     # Use last trade because it's the best average and highly unlikely to get burnt
+    #     values.append(float(ticker['result'][c['pair']]['c'][0]) * b)
 
-    print(coins)
-    print(balances)
-    print(values)
+    # Compute the rebalance
+    new_balances = []
+    if config["strategy"] == 'shannon':
+        # TODO: Remove fake data
+        balances = [1, 2.5]
+        values = [307.85, 282.25]
 
-    # if config["coins"]["strategy"] == 'shannon':
-    #     new_balances = Shannon([], [])
+        # Add the absolute asset to rebalance against it
+        absolute_asset = float(current_balance['result'][config['absolute_asset']['symbol']])
+        # TODO: Remove fake absolute balance and value
+        absolute_asset = 2500
+        balances.append(absolute_asset)
+        values.append(absolute_asset)
 
+        # TODO: Remove debug
+        # print(coins)
+        print(balances)
+        print(values)
+
+        shannon = Shannon(balances, values)
+        print("New balances", shannon.rebalance())
+        new_balances = shannon.rebalance()
+
+        """
+            Remove absolute asset from the list because we don't need to trade it explicitly. It will rebalance itself when trading all the other assets.
+        """
+        balances.pop()
+        values.pop()
+        new_balances.pop()
+
+    # Rebalance the coins
     # If dry_run is True do not actually balance, just pretend to do it.
+    for i in range(0, len(new_balances)):
+        # TODO: Add a minimum threshold, otherwise skip trading asset
+        buy_sell = None
+        if balances[i] - new_balances[i] < 0:
+            buy_sell = 'buy'
+        else:
+            buy_sell = 'sell'
+
+        volume = abs(balances[i] - new_balances[i])
+
+        trade = k.trade_market(pair=coins[i]['pair'], buy_sell=buy_sell, volume=volume)
+        print(trade)
+
 
 
 if __name__ == "__main__":
