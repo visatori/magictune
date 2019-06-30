@@ -98,7 +98,7 @@ def exec_run(config, k, dry_run=False):
     for i in range(0, len(new_balances)):
         # Skip if the traded volume is lower than the set threshold percentage.
         volume = abs(balances[i] - new_balances[i])
-        if volume < balances[i] * threshold_percentage:
+        if volume < (balances[i] * threshold_percentage):
             print(
                 "Volume is too low: {volume} < {percentage} percent.".format(
                     volume=volume, percentage=threshold_percentage * 100
