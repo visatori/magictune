@@ -15,7 +15,7 @@ def main():
         "runMode",
         type=str,
         choices=["run", "balance", "asset-pairs"],
-        help="Soemthing dark side",
+        help="Something dark side",
     )
     args = parser.parse_args()
     # Read config
@@ -112,7 +112,10 @@ def exec_run(config, k, dry_run=False):
         else:
             buy_sell = "sell"
 
-        # TODO: If dry_run is True do not actually balance, just pretend to do it.
+        if dry_run:
+            print(k.__trade_market_data__(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume))
+            continue
+
         print("Doing trade")
         print(k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume))
 
