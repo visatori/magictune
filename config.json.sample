@@ -3,7 +3,7 @@
         "key": "KRAKEN-KEY",
         "secret": "KRAKEN-SECRET"
     },
-    "coins": [
+    "assets": [
         {
             "name": "Ethereum",
             "symbol": "XETH",
