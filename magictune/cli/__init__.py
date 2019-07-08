@@ -111,7 +111,8 @@ def exec_run(config, k, dry_run=False):
         volume = abs(balances[i] - new_balances[i])
         if volume < (balances[i] * threshold_percentage):
             print(
-                "Volume is too low: {volume_percentage}% ({volume}) < {percentage}%.".format(
+                "Volume is too low for {asset} {volume_percentage}% ({volume}) < {percentage}%.".format(
+                    asset=assets[i]["name"],
                     volume=volume,
                     percentage=threshold_percentage * 100,
                     volume_percentage=volume * 100 / balances[i],
