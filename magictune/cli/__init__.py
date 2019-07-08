@@ -80,14 +80,25 @@ def exec_run(config, k, dry_run=False):
         # Add the absolute asset to the list with a parity of 1:1. Meaning if we have $182 we add 182 as token number at a 182 valuation.
         balances.append(absolute_asset)
         values.append(absolute_asset)
-        # TODO: Remove debug
-        print(assets)
-        print(balances)
-        print(values)
+        # Display balances
+        print("Current balances:")
+        for i in range(0, len(assets)):
+            print(
+                "{asset}: {balance} ({value})".format(
+                    asset=assets[i], balance=balances[i], value=values[i]
+                )
+            )
 
         shannon = Shannon(balances, values)
-        print("New balances", shannon.rebalance())
         new_balances = shannon.rebalance()
+        print("New balances:")
+        for i in range(0, len(assets)):
+            print(
+                "{asset}: {balance} ({value})".format(
+                    asset=assets[i], balance=balances[i], value=values[i]
+                )
+            )
+
         # Remove absolute asset from the list because we don't need to trade it explicitly. It will rebalance itself when trading all the other assets.
         balances.pop()
         values.pop()
@@ -100,8 +111,10 @@ def exec_run(config, k, dry_run=False):
         volume = abs(balances[i] - new_balances[i])
         if volume < (balances[i] * threshold_percentage):
             print(
-                "Volume is too low: {volume} < {percentage} percent.".format(
-                    volume=volume, percentage=threshold_percentage * 100
+                "Volume is too low: {volume_percentage}% ({volume}) < {percentage}%.".format(
+                    volume=volume,
+                    percentage=threshold_percentage * 100,
+                    volume_percentage=volume * 100 / balances[i],
                 )
             )
             continue
