@@ -95,7 +95,7 @@ def exec_run(config, k, dry_run=False):
         for i in range(0, len(assets)):
             print(
                 "{asset}: {balance} ({value})".format(
-                    asset=assets[i], balance=balances[i], value=values[i]
+                    asset=assets[i], balance=new_balances[i], value=values[i]
                 )
             )
 
