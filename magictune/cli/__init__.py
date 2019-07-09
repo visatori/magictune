@@ -101,9 +101,6 @@ def exec_run(config, k, dry_run=False):
         values.pop()
         new_balances.pop()
 
-    threshold_absolute_value = config[
-        "threshold_absolute_value"
-    ]  # expressed in "absolute_asset"
     # Rebalance the coins.
     for i in range(0, len(new_balances)):
         volume = abs(balances[i] - new_balances[i])
@@ -116,6 +113,7 @@ def exec_run(config, k, dry_run=False):
                     asset_symbol=assets[i]["symbol"],
                     value=volume * prices[i],
                     threshold=assets[i]["min_threshold_volume"],
+                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
                 )
             )
             continue
@@ -129,12 +127,13 @@ def exec_run(config, k, dry_run=False):
         # If dry_run is True do not actually do the trade, just pretend to do it.
         if dry_run:
             print(
-                "[{timestamp}] Simulating trade {buy_sell} {volume} @ {price} = {value}".format(
+                "[{timestamp}] Simulating trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
                     timestamp=time.ctime(),
                     buy_sell=buy_sell,
                     volume=volume,
                     price=prices[i],
                     value=volume * prices[i],
+                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
                 )
             )
             print(
@@ -144,12 +143,13 @@ def exec_run(config, k, dry_run=False):
             )
         else:
             print(
-                "[{timestamp}] Doing trade {buy_sell} {volume} @ {price} = {value}".format(
+                "[{timestamp}] Doing trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
                     timestamp=time.ctime(),
                     buy_sell=buy_sell,
                     volume=volume,
                     price=prices[i],
                     value=volume * prices[i],
+                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
                 )
             )
             print(
