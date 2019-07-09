@@ -113,7 +113,7 @@ $ crontab -e
 
 Add this line:
 ```crontab
-* * * * *       cd /path/to/magictune && python3 magictune.py run 2>&1 >> /var/log/magictune.log 
+0 * * * *       cd /path/to/magictune && python3 magictune.py run 2>&1 >> /var/log/magictune.log 
 ```
 
 Your log file will look something like this:
