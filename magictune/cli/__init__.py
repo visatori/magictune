@@ -32,6 +32,9 @@ def main():
         default=True,
         type=str2bool,
     )
+    parser.add_argument(
+        "--sleep", metavar="SECONDS", help="Sleep after execution", type=int
+    )
     args = parser.parse_args()
     # Read config
     config = None
@@ -47,6 +50,9 @@ def main():
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
         exec_asset_pairs(config, kraken_session)
+
+    if args.sleep > 0:
+        time.sleep(args.sleep)
 
 
 def exec_balance(config, k):
