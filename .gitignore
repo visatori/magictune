@@ -125,3 +125,6 @@ dmypy.json
 
 # Config
 config.json
+
+# Run script
+run.sh
