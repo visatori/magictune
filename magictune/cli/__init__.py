@@ -3,6 +3,7 @@ import sys
 import logging
 import configparser
 import json
+import time
 
 from magictune.session import Session
 from magictune.strategy.shannon import Shannon
@@ -17,6 +18,13 @@ def main():
         choices=["run", "balance", "asset-pairs"],
         help="Soemthing dark side",
     )
+    # Dry run
+    parser.add_argument(
+        "--dry-run",
+        help="Do not do any actions, just simulate them (for debugging)",
+        default=False,
+        type=str2bool,
+    )
     args = parser.parse_args()
     # Read config
     config = None
@@ -27,7 +35,7 @@ def main():
     kraken_session = Session(kraken["key"], kraken["secret"])
 
     if args.runMode == "run":
-        exec_run(config, kraken_session)
+        exec_run(config, kraken_session, args.dry_run)
     elif args.runMode == "balance":
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
@@ -62,13 +70,17 @@ def exec_run(config, k, dry_run=False):
     # The specified pair should be set to the asset considered absolute (usually USD),
     # and it should look like this for the ETH / USD pair: XETHZUSD.
     values = []
+    prices = []
     for i in range(0, len(assets)):
         c = assets[i]
         b = balances[i]
 
         ticker = k.ticker(c["pair"])
         # Use last traded value for this pair.
-        values.append(float(ticker["result"][c["pair"]]["c"][0]) * b)
+        price = float(ticker["result"][c["pair"]]["c"][0])
+        values.append(price * b)
+        # Save the price.
+        prices.append(price)
 
     # Compute the rebalance.
     new_balances = []
@@ -80,42 +92,30 @@ def exec_run(config, k, dry_run=False):
         # Add the absolute asset to the list with a parity of 1:1. Meaning if we have $182 we add 182 as token number at a 182 valuation.
         balances.append(absolute_asset)
         values.append(absolute_asset)
-        # Display balances
-        print("Current balances:")
-        for i in range(0, len(assets)):
-            print(
-                "{asset}: {balance} ({value})".format(
-                    asset=assets[i], balance=balances[i], value=values[i]
-                )
-            )
 
         shannon = Shannon(balances, values)
         new_balances = shannon.rebalance()
-        print("New balances:")
-        for i in range(0, len(assets)):
-            print(
-                "{asset}: {balance} ({value})".format(
-                    asset=assets[i], balance=new_balances[i], value=values[i]
-                )
-            )
 
         # Remove absolute asset from the list because we don't need to trade it explicitly. It will rebalance itself when trading all the other assets.
         balances.pop()
         values.pop()
         new_balances.pop()
 
+    threshold_absolute_value = config[
+        "threshold_absolute_value"
+    ]  # expressed in "absolute_asset"
     # Rebalance the coins.
-    threshold_percentage = config["threshold_percentage"]
     for i in range(0, len(new_balances)):
-        # Skip if the traded volume is lower than the set threshold percentage.
         volume = abs(balances[i] - new_balances[i])
-        if volume < (balances[i] * threshold_percentage):
+        # Skip if the traded volume is lower than the set threshold percentage.
+        if volume < assets[i]["min_threshold_volume"]:
             print(
-                "Volume is too low for {asset} {volume_percentage}% ({volume}) < {percentage}%.".format(
-                    asset=assets[i]["name"],
+                "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol}.".format(
+                    timestamp=time.ctime(),
                     volume=volume,
-                    percentage=threshold_percentage * 100,
-                    volume_percentage=volume * 100 / balances[i],
+                    asset_symbol=assets[i]["symbol"],
+                    value=volume * prices[i],
+                    threshold=assets[i]["min_threshold_volume"],
                 )
             )
             continue
@@ -126,9 +126,44 @@ def exec_run(config, k, dry_run=False):
         else:
             buy_sell = "sell"
 
-        # TODO: If dry_run is True do not actually balance, just pretend to do it.
-        print("Doing trade")
-        print(k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume))
+        # If dry_run is True do not actually do the trade, just pretend to do it.
+        if dry_run:
+            print(
+                "[{timestamp}] Simulating trade {buy_sell} {volume} @ {price} = {value}".format(
+                    timestamp=time.ctime(),
+                    buy_sell=buy_sell,
+                    volume=volume,
+                    price=prices[i],
+                    value=volume * prices[i],
+                )
+            )
+            print(
+                k.__trade_market_data__(
+                    pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume
+                )
+            )
+        else:
+            print(
+                "[{timestamp}] Doing trade {buy_sell} {volume} @ {price} = {value}".format(
+                    timestamp=time.ctime(),
+                    buy_sell=buy_sell,
+                    volume=volume,
+                    price=prices[i],
+                    value=volume * prices[i],
+                )
+            )
+            print(
+                k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume)
+            )
+
+
+def str2bool(v):
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 if __name__ == "__main__":
