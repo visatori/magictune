@@ -16,13 +16,20 @@ def main():
         "runMode",
         type=str,
         choices=["run", "balance", "asset-pairs"],
-        help="Soemthing dark side",
+        help="Something dark side",
     )
     # Dry run
     parser.add_argument(
         "--dry-run",
         help="Do not do any actions, just simulate them (for debugging)",
         default=False,
+        type=str2bool,
+    )
+    # Only display trades
+    parser.add_argument(
+        "--hide-low-volume",
+        help="Do not log when volume is too low.",
+        default=True,
         type=str2bool,
     )
     args = parser.parse_args()
@@ -35,7 +42,7 @@ def main():
     kraken_session = Session(kraken["key"], kraken["secret"])
 
     if args.runMode == "run":
-        exec_run(config, kraken_session, args.dry_run)
+        exec_run(config, kraken_session, args.dry_run, args.hide_low_volume)
     elif args.runMode == "balance":
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
@@ -54,7 +61,7 @@ def exec_asset_pairs(config, k):
     print(json.dumps(k.assetPairs()))
 
 
-def exec_run(config, k, dry_run=False):
+def exec_run(config, k, dry_run=False, hide_low_volume=True):
     """Rebalance the portfolio according to the specified asset list, absolute asset, strategy and threshold_percentage."""
 
     # Asset list to rebalance.
@@ -106,16 +113,17 @@ def exec_run(config, k, dry_run=False):
         volume = abs(balances[i] - new_balances[i])
         # Skip if the traded volume is lower than the set threshold percentage.
         if volume < assets[i]["min_threshold_volume"]:
-            print(
-                "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol}.".format(
-                    timestamp=time.ctime(),
-                    volume=volume,
-                    asset_symbol=assets[i]["symbol"],
-                    value=volume * prices[i],
-                    threshold=assets[i]["min_threshold_volume"],
-                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
+            if hide_low_volume is True:
+                print(
+                    "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol}.".format(
+                        timestamp=time.ctime(),
+                        volume=volume,
+                        asset_symbol=assets[i]["symbol"],
+                        value=volume * prices[i],
+                        threshold=assets[i]["min_threshold_volume"],
+                        absolute_asset_symbol=config["absolute_asset"]["symbol"],
+                    )
                 )
-            )
             continue
 
         buy_sell = None
