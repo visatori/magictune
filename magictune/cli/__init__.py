@@ -33,7 +33,7 @@ def main():
         type=str2bool,
     )
     parser.add_argument(
-        "--sleep", metavar="SECONDS", help="Sleep after execution", type=int
+        "--sleep", metavar="SECONDS", help="Sleep after execution", type=int, default=0
     )
     args = parser.parse_args()
     # Read config
