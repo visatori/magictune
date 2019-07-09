@@ -113,7 +113,7 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
         volume = abs(balances[i] - new_balances[i])
         # Skip if the traded volume is lower than the set threshold percentage.
         if volume < assets[i]["min_threshold_volume"]:
-            if hide_low_volume is True:
+            if hide_low_volume is False:
                 print(
                     "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol}.".format(
                         timestamp=time.ctime(),
