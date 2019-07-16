@@ -118,10 +118,6 @@ Add this line:
 
 Your log file will look something like this:
 ```console
-[Tue Jul  9 08:18:03 2019] Volume is too low 0.0011158958185384371 XXBT (13.928611606996771 ZUSD) < 0.002 XXBT.                                                
-[Tue Jul  9 08:19:02 2019] Volume is too low 0.0012125683866455184 XXBT (15.136491170496006 ZUSD) < 0.002 XXBT.                                                
-[Tue Jul  9 08:20:03 2019] Doing trade sell 0.003287288718921033 @ 12504.5 = 41.10590178574806 ZUSD                                                            
-{'error': [], 'result': {'descr': {'order': 'sell 0.00328728 XBTUSD @ market'}, 'txid': ['JFUSAS-BUIMSF-A26VF']}}                                              
-[Tue Jul  9 08:21:02 2019] Volume is too low 0.00012037328802216862 XXBT (1.5050512947987789 ZUSD) < 0.002 XXBT.                                               
-[Tue Jul  9 08:22:02 2019] Volume is too low 0.00014972087725917405 XXBT (1.8724092910032306 ZUSD) < 0.002 XXBT.         
+[Tue Jul 16 14:01:51 2019] Doing trade buy 1.23456789 @ 4321 = 9876 ZUSD
+{'error': [], 'result': {'descr': {'order': 'buy 1.23456789 XBTUSD @ market'}, 'txid': ['AAAAA-BBBBB-CCCCC']}}      
 ```
