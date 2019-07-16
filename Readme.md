@@ -40,13 +40,13 @@ Example config:
             "name": "Ethereum",
             "symbol": "XETH",
             "pair": "XETHZEUR",
-            "min_threshold_volume": 0.02
+            "min_threshold_percent": 0.1
         },
         {
             "name": "Litecoin",
             "symbol": "XLTC",
             "pair": "XLTCZEUR",
-            "min_threshold_volume": 0.1
+            "min_threshold_percent": 0.1
         }
     ],
     "absolute_asset": {
@@ -93,13 +93,13 @@ Each asset looks like this:
     "name": "Ethereum",
     "symbol": "XETH",
     "pair": "XETHZEUR",
-    "min_threshold_volume": 0.02
+    "min_threshold_percent": 0.02
 }
 ```
 
 The `pair` field needs to have the asset symbol first and the absolute asset second (i.e. `XETHZEUR`).
 
-The `min_threshold_volume` defines what is the minimum trade volume. You can set it as high as you want but no lower than the values defined [here](https://support.kraken.com/hc/en-us/articles/205893708-What-is-the-minimum-order-size-volume-), otherwise it will fail trying to make trades. It's not a critical problem because the trade just won't happen.
+The `min_threshold_percent` defines what is the minimum trade percent (0.01 equals 1%, 0.1 is 10% and so on). You can set it as high as you want but no lower than the values defined [here](https://support.kraken.com/hc/en-us/articles/205893708-What-is-the-minimum-order-size-volume-), otherwise it will fail trying to make trades. It's not a critical problem because the trade just won't happen.
 
 ## Running
 

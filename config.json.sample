@@ -8,13 +8,13 @@
             "name": "Ethereum",
             "symbol": "XETH",
             "pair": "XETHZEUR",
-            "min_threshold_volume": 0.02
+            "min_threshold_percent": 0.02
         },
         {
             "name": "Litecoin",
             "symbol": "XLTC",
             "pair": "XLTCZEUR",
-            "min_threshold_volume": 0.1
+            "min_threshold_percent": 0.1
         }
     ],
     "absolute_asset": {

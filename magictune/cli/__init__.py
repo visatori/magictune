@@ -118,7 +118,7 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
     for i in range(0, len(new_balances)):
         volume = abs(balances[i] - new_balances[i])
         # Skip if the traded volume is lower than the set threshold percentage.
-        if volume < (balances[i] * assets[i]["min_threshold_volume"]):
+        if volume < (balances[i] * assets[i]["min_threshold_percent"]):
             if hide_low_volume is False:
                 print(
                     "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
@@ -126,8 +126,8 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
                         volume=volume,
                         asset_symbol=assets[i]["symbol"],
                         value=volume * prices[i],
-                        threshold=balances[i] * assets[i]["min_threshold_volume"],
-                        threshold_percent=assets[i]["min_threshold_volume"] * 100,
+                        threshold=balances[i] * assets[i]["min_threshold_percent"],
+                        threshold_percent=assets[i]["min_threshold_percent"] * 100,
                         absolute_asset_symbol=config["absolute_asset"]["symbol"],
                     )
                 )
