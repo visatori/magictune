@@ -45,7 +45,7 @@ def main():
     kraken_session = Session(kraken["key"], kraken["secret"])
 
     if args.runMode == "run":
-        exec_run(config, kraken_session, args.dry_run, args.hide_low_volume)
+        exec_run(config=config, k=kraken_session, dry_run=args.dry_run, hide_low_volume=args.hide_low_volume)
     elif args.runMode == "balance":
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
@@ -118,15 +118,16 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
     for i in range(0, len(new_balances)):
         volume = abs(balances[i] - new_balances[i])
         # Skip if the traded volume is lower than the set threshold percentage.
-        if volume < assets[i]["min_threshold_volume"]:
+        if volume < (balances[i] * assets[i]["min_threshold_volume"]):
             if hide_low_volume is False:
                 print(
-                    "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol}.".format(
+                    "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
                         timestamp=time.ctime(),
                         volume=volume,
                         asset_symbol=assets[i]["symbol"],
                         value=volume * prices[i],
-                        threshold=assets[i]["min_threshold_volume"],
+                        threshold=balances[i] * assets[i]["min_threshold_volume"],
+                        threshold_percent=assets[i]["min_threshold_volume"] * 100,
                         absolute_asset_symbol=config["absolute_asset"]["symbol"],
                     )
                 )
