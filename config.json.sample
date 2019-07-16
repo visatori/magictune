@@ -7,19 +7,13 @@
         {
             "name": "Ethereum",
             "symbol": "XETH",
-            "pair": "XETHZEUR",
-            "min_threshold_percent": 0.02
-        },
-        {
-            "name": "Litecoin",
-            "symbol": "XLTC",
-            "pair": "XLTCZEUR",
+            "pair": "XETHZUSD",
             "min_threshold_percent": 0.1
         }
     ],
     "absolute_asset": {
         "name": "Euro",
-        "symbol": "ZEUR"
+        "symbol": "ZUSD"
     },
     "strategy": "shannon"
 }
