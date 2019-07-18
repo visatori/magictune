@@ -1,0 +1,15 @@
+FROM python:3.5
+
+WORKDIR /app
+
+ENV CRON_INTERVAL="0 0 * * *"
+ENV DRY_RUN=true
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		cron
+
+COPY . /app
+
+RUN pip install -r requirements.txt
+
+CMD ./cmd.sh
