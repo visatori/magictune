@@ -124,7 +124,7 @@ dmypy.json
 .pyre/
 
 # Config
-config.json
+config*.json
 
 # Run script
 run.sh

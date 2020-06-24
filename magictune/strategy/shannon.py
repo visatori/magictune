@@ -20,6 +20,9 @@ class Shannon:
 
         new_balances = []
         for i in range(0, len(self.balances)):
-            new_balances.append(average * self.balances[i] / self.values[i])
+            if self.balances[i] != 0:
+                new_balances.append(average * self.balances[i] / self.values[i])
+            else:
+                new_balances.append(0)
 
         return new_balances

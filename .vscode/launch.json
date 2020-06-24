@@ -16,5 +16,18 @@
                 "--hide-low-volume=false",
             ],
         },
+        {
+            "name": "Run dry different config",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/magictune.py",
+            "console": "integratedTerminal",
+            "args": [
+                "run",
+                "--dry-run=true",
+                "--hide-low-volume=false",
+                "--config=config-other.json"
+            ],
+        },
     ]
 }

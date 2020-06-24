@@ -35,17 +35,24 @@ def main():
     parser.add_argument(
         "--sleep", metavar="SECONDS", help="Sleep after execution", type=int, default=0
     )
+    parser.add_argument("--config", help="Config file to use", default="config.json")
     args = parser.parse_args()
+
     # Read config
     config = None
-    with open("config.json") as f:
+    with open(args.config) as f:
         config = json.load(f)
     # Create Kraken session
     kraken = {"key": config["kraken"]["key"], "secret": config["kraken"]["secret"]}
     kraken_session = Session(kraken["key"], kraken["secret"])
 
     if args.runMode == "run":
-        exec_run(config=config, k=kraken_session, dry_run=args.dry_run, hide_low_volume=args.hide_low_volume)
+        exec_run(
+            config=config,
+            k=kraken_session,
+            dry_run=args.dry_run,
+            hide_low_volume=args.hide_low_volume,
+        )
     elif args.runMode == "balance":
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
@@ -100,7 +107,7 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
     if config["strategy"] == "shannon":
         # Add the absolute asset to rebalance against it.
         absolute_asset = float(
-            current_balance["result"][config["absolute_asset"]["symbol"]]
+            current_balance.get("result", {}).get(config["absolute_asset"]["symbol"], 0)
         )
         # Add the absolute asset to the list with a parity of 1:1. Meaning if we have $182 we add 182 as token number at a 182 valuation.
         balances.append(absolute_asset)
