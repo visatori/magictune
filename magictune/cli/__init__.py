@@ -107,7 +107,7 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
     if config["strategy"] == "shannon":
         # Add the absolute asset to rebalance against it.
         absolute_asset = float(
-            current_balance.get("result", {}).get(config["absolute_asset"]["symbol"], 0)
+            current_balance["result"][config["absolute_asset"]["symbol"]]
         )
         # Add the absolute asset to the list with a parity of 1:1. Meaning if we have $182 we add 182 as token number at a 182 valuation.
         balances.append(absolute_asset)
