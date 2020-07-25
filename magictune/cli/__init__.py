@@ -1,15 +1,34 @@
+import logging
 import argparse
 import sys
 import logging
 import configparser
 import json
 import time
+import telegram
 
 from magictune.session import Session
 from magictune.strategy.shannon import Shannon
 
+# TODO: refactor this into a class
+def bot_send_message(telegram_bot=None, message: str = None):
+    if telegram_bot is not None:
+        try:
+            update_id = telegram_bot.get_updates()[-1].update_id
+        except IndexError:
+            update_id = None
+
+        update = telegram_bot.get_updates(offset=update_id, timeout=10)[0]
+
+        update.message.reply_text(message)
+
 
 def main():
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
     # Parse arguments
     parser = argparse.ArgumentParser(description="Algorithmic automated trading")
     parser.add_argument(
@@ -42,9 +61,22 @@ def main():
     config = None
     with open(args.config) as f:
         config = json.load(f)
+
     # Create Kraken session
     kraken = {"key": config["kraken"]["key"], "secret": config["kraken"]["secret"]}
     kraken_session = Session(kraken["key"], kraken["secret"])
+
+    # Initialize Telegram bot
+    telegram_bot = None
+    try:
+        telegram_bot = telegram.Bot(config.get("bot").get("telegram").get("token"))
+    except:
+        logging.error(
+            "Could not initialize Telegram bot: {exception}".format(
+                exception=sys.exc_info()[0]
+            )
+        )
+        telegram_bot = None
 
     if args.runMode == "run":
         exec_run(
@@ -52,6 +84,7 @@ def main():
             k=kraken_session,
             dry_run=args.dry_run,
             hide_low_volume=args.hide_low_volume,
+            telegram_bot=telegram_bot,
         )
     elif args.runMode == "balance":
         exec_balance(config, kraken_session)
@@ -65,16 +98,16 @@ def main():
 def exec_balance(config, k):
     """Display the user's balance.
     """
-    print(json.dumps(k.balance()))
+    logging.info(json.dumps(k.balance()))
 
 
 def exec_asset_pairs(config, k):
     """Display all available asset pairs.
     """
-    print(json.dumps(k.assetPairs()))
+    logging.info(json.dumps(k.assetPairs()))
 
 
-def exec_run(config, k, dry_run=False, hide_low_volume=True):
+def exec_run(config, k, dry_run=False, hide_low_volume=True, telegram_bot=None):
     """Rebalance the portfolio according to the specified asset list, absolute asset, strategy and threshold_percentage."""
 
     # Asset list to rebalance.
@@ -127,17 +160,17 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
         # Skip if the traded volume is lower than the set threshold percentage.
         if volume < (balances[i] * assets[i]["min_threshold_percent"]):
             if hide_low_volume is False:
-                print(
-                    "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
-                        timestamp=time.ctime(),
-                        volume=volume,
-                        asset_symbol=assets[i]["symbol"],
-                        value=volume * prices[i],
-                        threshold=balances[i] * assets[i]["min_threshold_percent"],
-                        threshold_percent=assets[i]["min_threshold_percent"] * 100,
-                        absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                    )
+                message = "Volume is too low:\n{volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
+                    timestamp=time.ctime(),
+                    volume=volume,
+                    asset_symbol=assets[i]["symbol"],
+                    value=volume * prices[i],
+                    threshold=balances[i] * assets[i]["min_threshold_percent"],
+                    threshold_percent=assets[i]["min_threshold_percent"] * 100,
+                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
                 )
+                logging.info(message)
+                bot_send_message(telegram_bot=telegram_bot, message=message)
             continue
 
         buy_sell = None
@@ -148,35 +181,36 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
 
         # If dry_run is True do not actually do the trade, just pretend to do it.
         if dry_run:
-            print(
-                "[{timestamp}] Simulating trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
-                    timestamp=time.ctime(),
-                    buy_sell=buy_sell,
-                    volume=volume,
-                    price=prices[i],
-                    value=volume * prices[i],
-                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                )
+            message = "Simulating trade {buy_sell}:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol}".format(
+                buy_sell=buy_sell,
+                volume=volume,
+                asset_symbol=assets[i]["symbol"],
+                price=prices[i],
+                value=volume * prices[i],
+                absolute_asset_symbol=config["absolute_asset"]["symbol"],
             )
-            print(
+
+            logging.info(message)
+            logging.info(
                 k.__trade_market_data__(
                     pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume
                 )
             )
+            bot_send_message(telegram_bot=telegram_bot, message=message)
         else:
-            print(
-                "[{timestamp}] Doing trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
-                    timestamp=time.ctime(),
-                    buy_sell=buy_sell,
-                    volume=volume,
-                    price=prices[i],
-                    value=volume * prices[i],
-                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                )
+            message = "Doing trade {buy_sell}:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol}".format(
+                buy_sell=buy_sell,
+                volume=volume,
+                asset_symbol=assets[i]["symbol"],
+                price=prices[i],
+                value=volume * prices[i],
+                absolute_asset_symbol=config["absolute_asset"]["symbol"],
             )
-            print(
+            logging.info(message)
+            logging.info(
                 k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume)
             )
+            bot_send_message(telegram_bot=telegram_bot, message=message)
 
 
 def str2bool(v):

@@ -28,6 +28,6 @@
                 "--hide-low-volume=false",
                 "--config=config-other.json"
             ],
-        },
+        }
     ]
 }
