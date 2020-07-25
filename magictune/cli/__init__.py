@@ -160,10 +160,11 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True, telegram_bot=None):
         # Skip if the traded volume is lower than the set threshold percentage.
         if volume < (balances[i] * assets[i]["min_threshold_percent"]):
             if hide_low_volume is False:
-                message = "Volume is too low:\n{volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
+                message = "Volume is too low:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol} < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
                     timestamp=time.ctime(),
                     volume=volume,
                     asset_symbol=assets[i]["symbol"],
+                    price=prices[i],
                     value=volume * prices[i],
                     threshold=balances[i] * assets[i]["min_threshold_percent"],
                     threshold_percent=assets[i]["min_threshold_percent"] * 100,
