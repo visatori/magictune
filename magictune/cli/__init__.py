@@ -1,3 +1,4 @@
+import logging
 import argparse
 import sys
 import logging
@@ -10,6 +11,12 @@ from magictune.strategy.shannon import Shannon
 
 
 def main():
+    # Enable logging
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
     # Parse arguments
     parser = argparse.ArgumentParser(description="Algorithmic automated trading")
     parser.add_argument(
@@ -127,17 +134,17 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
         # Skip if the traded volume is lower than the set threshold percentage.
         if volume < (balances[i] * assets[i]["min_threshold_percent"]):
             if hide_low_volume is False:
-                print(
-                    "[{timestamp}] Volume is too low {volume} {asset_symbol} ({value} {absolute_asset_symbol}) < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
-                        timestamp=time.ctime(),
-                        volume=volume,
-                        asset_symbol=assets[i]["symbol"],
-                        value=volume * prices[i],
-                        threshold=balances[i] * assets[i]["min_threshold_percent"],
-                        threshold_percent=assets[i]["min_threshold_percent"] * 100,
-                        absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                    )
+                message = "Volume is too low:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol} < {threshold} {asset_symbol} ({threshold_percent}%) .".format(
+                    timestamp=time.ctime(),
+                    volume=volume,
+                    asset_symbol=assets[i]["symbol"],
+                    price=prices[i],
+                    value=volume * prices[i],
+                    threshold=balances[i] * assets[i]["min_threshold_percent"],
+                    threshold_percent=assets[i]["min_threshold_percent"] * 100,
+                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
                 )
+                logging.info(message)
             continue
 
         buy_sell = None
@@ -148,33 +155,32 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
 
         # If dry_run is True do not actually do the trade, just pretend to do it.
         if dry_run:
-            print(
-                "[{timestamp}] Simulating trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
-                    timestamp=time.ctime(),
-                    buy_sell=buy_sell,
-                    volume=volume,
-                    price=prices[i],
-                    value=volume * prices[i],
-                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                )
+            message = "Simulating trade {buy_sell}:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol}".format(
+                buy_sell=buy_sell,
+                volume=volume,
+                asset_symbol=assets[i]["symbol"],
+                price=prices[i],
+                value=volume * prices[i],
+                absolute_asset_symbol=config["absolute_asset"]["symbol"],
             )
-            print(
+
+            logging.info(message)
+            logging.info(
                 k.__trade_market_data__(
                     pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume
                 )
             )
         else:
-            print(
-                "[{timestamp}] Doing trade {buy_sell} {volume} @ {price} = {value} {absolute_asset_symbol}".format(
-                    timestamp=time.ctime(),
-                    buy_sell=buy_sell,
-                    volume=volume,
-                    price=prices[i],
-                    value=volume * prices[i],
-                    absolute_asset_symbol=config["absolute_asset"]["symbol"],
-                )
+            message = "Doing trade {buy_sell}:\n{volume} {asset_symbol} @ {price} {absolute_asset_symbol} = {value} {absolute_asset_symbol}".format(
+                buy_sell=buy_sell,
+                volume=volume,
+                asset_symbol=assets[i]["symbol"],
+                price=prices[i],
+                value=volume * prices[i],
+                absolute_asset_symbol=config["absolute_asset"]["symbol"],
             )
-            print(
+            logging.info(message)
+            logging.info(
                 k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume)
             )
 
