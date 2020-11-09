@@ -1,12 +1,15 @@
 import argparse
-import sys
-import logging
-import configparser
 import json
 import time
+import sys
+import datetime
 
 from magictune.session import Session
 from magictune.strategy.shannon import Shannon
+import magictune.statistics as stats
+
+import magictune.coinpaprika.client as CoinpaprikaClient
+from magictune.coinpaprika.exceptions import CoinpaprikaAPIException
 
 
 def main():
@@ -15,7 +18,7 @@ def main():
     parser.add_argument(
         "runMode",
         type=str,
-        choices=["run", "balance", "asset-pairs"],
+        choices=["run", "balance", "asset-pairs", "standard-deviation"],
         help="Something dark side",
     )
     # Dry run
@@ -57,6 +60,8 @@ def main():
         exec_balance(config, kraken_session)
     elif args.runMode == "asset-pairs":
         exec_asset_pairs(config, kraken_session)
+    elif args.runMode == "standard-deviation":
+        exec_standard_deviation(config, kraken_session)
 
     if args.sleep > 0:
         time.sleep(args.sleep)
@@ -101,6 +106,34 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
         values.append(price * b)
         # Save the price.
         prices.append(price)
+
+    # Shannon with a variable min threshold defined by the volatility
+    if config["strategy"] == "shannon-threshold-std":
+        # Get historical data
+        coin = config["coinpaprika"]["symbol"]
+        interval = config["coinpaprika"]["interval_size"]
+        end = datetime.datetime.now(tz=datetime.timezone.utc)
+        start = end - datetime.timedelta(seconds=config["coinpaprika"]["history_size"])
+
+        client = CoinpaprikaClient.Client()
+        try:
+            items = client.historical(
+                coin,
+                start=start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                end=end.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                interval=interval,
+            )
+        except CoinpaprikaAPIException as e:
+            print("Hit API exception ", e)
+            sys.exit(1)
+
+        with open("trades.json", "w") as f:
+            json.dump(items, f, indent=4)
+
+        print(stats.volatility(data=[item.get("price") for item in items]))
+        print(stats.standard_deviation(data=[item.get("price") for item in items]))
+
+        pass
 
     # Compute the rebalance.
     new_balances = []
@@ -177,6 +210,15 @@ def exec_run(config, k, dry_run=False, hide_low_volume=True):
             print(
                 k.trade_market(pair=assets[i]["pair"], buy_sell=buy_sell, volume=volume)
             )
+
+
+def exec_standard_deviation(config, k, pair=None, since=None):
+    data = None
+    with open("trades.json", "r") as f:
+        data = json.load(f)
+
+    print(stats.standard_deviation(data=[d.get("price") for d in data]))
+    print(stats.volatility(data=[d.get("price") for d in data]))
 
 
 def str2bool(v):

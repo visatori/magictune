@@ -37,6 +37,13 @@ class Session:
             "AddOrder", data=self.__trade_market_data__(pair, buy_sell, volume)
         )
 
+    def standard_deviation(self, pair, since=None):
+        """
+        
+        """
+
+        return self.kraken.query_public("Trades", data={"pair": pair, "since": since,})
+
     """
         Private methods. 
         Even though the private methods do not exist in Python, these are considered private and should be used for debugging purposes only.

@@ -29,5 +29,15 @@
                 "--config=config-other.json"
             ],
         },
+        {
+            "name": "Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/magictune.py",
+            "console": "integratedTerminal",
+            "args": [
+                "standard-deviation",
+            ],
+        },
     ]
 }
