@@ -13,12 +13,3 @@ workers:
     - key: KRAKEN_SECRET
       scope: RUN_TIME
       value: KRAKEN_SECRET
-    - key: DRY_RUN
-      scope: RUN_TIME
-      value: true
-    - key: HIDE_LOW_VOLUME
-      scope: RUN_TIME
-      value: false
-    - key: CRON_INTERVAL
-      scope: RUN_TIME
-      value: '*/6 * * * *'
