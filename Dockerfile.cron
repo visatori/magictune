@@ -4,6 +4,8 @@ WORKDIR /app
 
 ENV CRON_INTERVAL="0 0 * * *"
 ENV DRY_RUN=true
+ENV KRAKEN_KEY=""
+ENV KRAKEN_SECRET="" 
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		cron

@@ -6,3 +6,10 @@ workers:
     branch: master
     deploy_on_push: true
   dockerfile_path: Dockerfile.cron
+  envs:
+    - key: KRAKEN_KEY
+      scope: RUN_TIME
+      value: KRAKEN_KEY
+    - key: KRAKEN_SECRET
+      scope: RUN_TIME
+      value: KRAKEN_SECRET
