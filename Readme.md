@@ -59,7 +59,10 @@ Example config:
 
 ### Setting up Kraken API
 
-You need to replace `KRAKEN-KEY` and `KRAKEN-SECRET` with your own generated key. 
+You need to replace `KRAKEN-KEY` and `KRAKEN-SECRET` with your own generated key.
+
+You can also delete the `kraken` section from the config file and set `KRAKEN_SECRET` and `KRAKEN_KEY` as env vars.
+
 The key needs to have these permissions:
 - Query Funds
 - Modify Orders

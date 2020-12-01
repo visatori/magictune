@@ -1,3 +1,4 @@
+import os
 import logging
 import argparse
 import sys
@@ -50,7 +51,11 @@ def main():
     with open(args.config) as f:
         config = json.load(f)
     # Create Kraken session
-    kraken = {"key": config["kraken"]["key"], "secret": config["kraken"]["secret"]}
+    if config.get('kraken'):
+        kraken = {"key": config["kraken"]["key"], "secret": config["kraken"]["secret"]}
+    else:
+        kraken = {"key": os.getenv('KRAKEN_KEY'), "secret": os.getenv('KRAKEN_SECRET')}
+
     kraken_session = Session(kraken["key"], kraken["secret"])
 
     if args.runMode == "run":
