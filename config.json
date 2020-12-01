@@ -1,0 +1,15 @@
+{
+    "assets": [
+        {
+            "name": "Bitcoin",
+            "symbol": "XXBT",
+            "pair": "XXBTZEUR",
+            "min_threshold_percent": 0.02
+        }
+    ],
+    "absolute_asset": {
+        "name": "Euro",
+        "symbol": "ZEUR"
+    },
+    "strategy": "shannon"
+}

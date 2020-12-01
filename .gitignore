@@ -123,9 +123,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Config
-config*.json
-
 # Run script
 run.sh
 

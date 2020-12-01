@@ -1,0 +1,8 @@
+name: magictune
+workers:
+- name: worker
+  github:
+    repo: rattrap/magictune
+    branch: master
+    deploy_on_push: true
+  dockerfile_path: Dockerfile.cron
